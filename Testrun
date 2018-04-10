@@ -1,0 +1,37 @@
+from flask import Flask, render_template
+import json
+import plivo
+import requests
+import GoogleMapsApi
+
+
+app = Flask(__name__)
+
+
+@app.route('/send_sms/<r>')
+def send_message(r):
+    client = plivo.RestClient('MAYMI3MZA5MZAWNJUXMD', 'ZjQzY2ZhMmE5NThiN2QwNDVkZTc1OWFmY2E4MGI5')
+    response = client.messages.create(
+        src='14156886775',
+        dst=r,
+        text='Message') 
+    return 'Status %s' % response
+
+@app.route('/bank/<bank_name>')
+def nearby(bank_name):
+    r=requests.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=12.9487293,77.6904604&radius=5000&type=bank&keyword='+bank_name+'&key=AIzaSyB41FSGii3-9TRZczQR5nO1mHBNBuz4YHM')
+    return  '%s' % r.text
+
+@app.route('/number/<num>')
+def lookup(num):
+    r=requests.get('https://www.hlr-lookups.com/api?action=submitSyncLookupRequest&msisdn='+num+'&username=kirannk22&password=lokiNK854')
+    return "%s" % r.text
+
+@app.route('/country/<count>')
+def pricing(count):
+   payload={'country_iso':count}
+   r = requests.get('https://api.plivo.com/v1/Account/MAYMI3MZA5MZAWNJUXMD/Pricing/', auth=('MAYMI3MZA5MZAWNJUXMD','ZjQzY2ZhMmE5NThiN2QwNDVkZTc1OWFmY2E4MGI5'), params=payload)
+   return 'result %s' % r.text
+
+if __name__ == "__main__":
+    app.run()
